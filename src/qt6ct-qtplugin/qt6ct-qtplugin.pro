@@ -4,7 +4,7 @@ TEMPLATE = lib
 TARGET = qt6ct
 CONFIG += plugin
 
-QT += gui-private
+QT += gui-private dbus
 
 SOURCES += \
     main.cpp \

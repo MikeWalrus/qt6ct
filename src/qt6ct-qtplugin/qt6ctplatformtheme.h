@@ -57,6 +57,9 @@ public:
     virtual const QPalette *palette(Palette type = SystemPalette) const override;
     virtual const QFont *font(Font type = SystemFont) const override;
     virtual QVariant themeHint(ThemeHint hint) const override;
+    virtual Qt::ColorScheme colorScheme() const override;
+
+
     virtual QIcon fileIcon(const QFileInfo &fileInfo, QPlatformTheme::IconOptions iconOptions = {}) const override;
     //virtual QPixmap standardPixmap(StandardPixmap sp, const QSizeF &size) const;
     //virtual QPixmap fileIconPixmap(const QFileInfo &fileInfo, const QSizeF &size,

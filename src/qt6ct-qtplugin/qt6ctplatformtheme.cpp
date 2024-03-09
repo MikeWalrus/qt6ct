@@ -49,8 +49,13 @@
 #include "qt6ct.h"
 #include "qt6ctplatformtheme.h"
 
+#include <QString>
 #include <QStringList>
 #include <qpa/qplatformthemefactory_p.h>
+
+#include <QDBusConnection>
+#include <QDBusMessage>
+#include <QDBusReply>
 
 Q_LOGGING_CATEGORY(lqt6ct, "qt6ct", QtWarningMsg)
 
@@ -135,6 +140,37 @@ QVariant Qt6CTPlatformTheme::themeHint(QPlatformTheme::ThemeHint hint) const
         return m_showShortcutsInContextMenus;
     default:
         return QGenericUnixTheme::themeHint(hint);
+    }
+}
+
+Qt::ColorScheme Qt6CTPlatformTheme::colorScheme() const
+{
+    using namespace Qt::Literals::StringLiterals;
+    QDBusMessage message = QDBusMessage::createMethodCall("org.freedesktop.portal.Desktop"_L1,
+        "/org/freedesktop/portal/desktop"_L1,
+        "org.freedesktop.portal.Settings"_L1,
+        "Read"_L1);
+    message << "org.freedesktop.appearance"_L1
+            << "color-scheme"_L1;
+
+    QDBusReply<QVariant> reply = QDBusConnection::sessionBus().call(message);
+    if (!reply.isValid()) {
+        return Qt::ColorScheme::Unknown;
+    }
+    const QDBusVariant dbusVariant = qvariant_cast<QDBusVariant>(reply.value());
+    enum XdgColorSchemePref {
+        None,
+        PreferDark,
+        PreferLight
+    };
+    const XdgColorSchemePref xdgPref = static_cast<XdgColorSchemePref>(dbusVariant.variant().toUInt());
+    switch (xdgPref) {
+    case PreferDark:
+        return Qt::ColorScheme::Dark;
+    case PreferLight:
+        return Qt::ColorScheme::Light;
+    default:
+        return Qt::ColorScheme::Unknown;
     }
 }
 
